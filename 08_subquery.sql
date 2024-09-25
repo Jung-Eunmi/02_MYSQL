@@ -100,7 +100,3 @@ from
 	menucte
 order by
 	menu_name;
-
-
-
-
