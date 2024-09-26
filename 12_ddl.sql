@@ -70,12 +70,83 @@ drop column col2;
 alter table tb2
 change column fk change_fk int not null;
 
+-- 열의 제약 조건 추가 및 삭제
+-- alter table 테이블명 drop 제약조건
+
+-- auto_increment 가 걸려있는 컬럼은 primary key 제거가 되지 않는다.
+alter table tb2
+drop primary key;
+
+-- 따라서 auto_increment 속성을 modify 로 제거한다.
+-- modify 는 컬럼의 정의를 바꾸는 것이다.
+alter table tb2
+modify pk int;
+
+-- auto_increment 제거 후 primary key 삭제
+alter table tb2
+drop primary key;
+
 describe tb2;
 
+-- tb3 생성
+create table if not exists tb3 (
+	pk int auto_increment primary key, 
+    fk int,
+    col1 varchar(255),  -- 문자열 길이 지정
+    check(col1 in ('Y', 'N'))
+) engine=innodb;
 
+-- tb3 삭제
+-- if exists 안전한 식을 만들 수 있다.
+-- if exists 를 쓰지 않으면 없는 테이블을 또 삭제할 때 전체실행 시 그 부분에서 멈추게 됨
+drop table if exists tb3;
 
+-- tb4 , 5 생성
+create table if not exists tb4 (
+	pk int auto_increment primary key, 
+    fk int,
+    col1 varchar(255),  -- 문자열 길이 지정
+    check(col1 in ('Y', 'N'))
+) engine=innodb;
 
+create table if not exists tb5 (
+	pk int auto_increment primary key, 
+    fk int,
+    col1 varchar(255),  -- 문자열 길이 지정
+    check(col1 in ('Y', 'N'))
+) engine=innodb;
 
+-- 테이블 동시 삭제는 나열연산자(,) 만 쓰면 된다.
+drop table if exists tb4, tb5;
 
+-- truncate // delete 
+-- delete 구문을 작성을 하면
+-- where 조건절로 행을 삭제 
+-- 조건 없이 delete 를 하면 전체 행 삭제
+-- truncate 구문은 행마다 하나씩 지워주는 것이 아닌
+-- 테이블을 drop 후 재생성을 해주는 초기화의 개념을 가지고 있다.
+-- delete 는 우리가 제어판에서 하나씩 삭제한다라고 치면
+-- truncate 는 pc 초기화의 느낌이다.
 
+create table if not exists tb6 (
+	pk int auto_increment primary key, 
+    fk int,
+    col1 varchar(255),  -- 문자열 길이 지정
+    check(col1 in ('Y', 'N'))
+) engine=innodb;
 
+-- 초기화 확인용 더미데이터
+insert into tb6 values (null, 10, 'Y');
+insert into tb6 values (null, 20, 'Y');
+insert into tb6 values (null, 30, 'Y');
+insert into tb6 values (null, 40, 'Y');
+
+select * from tb6;
+
+-- 테이블 초기화
+truncate table tb6;
+
+select * from tb6;
+
+-- truncate 가 데이터를 수정하는 dml(값 변경)이 아니냐라고 할 수 있는데
+-- truncate 는 table drop 하고 create 하기 때문에 테이블 구조를 변경 한 것이다.
