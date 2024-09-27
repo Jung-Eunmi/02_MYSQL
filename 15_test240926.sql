@@ -76,6 +76,14 @@ from
 select
 	EMP_NAME,
     HIRE_DATE,
-    
+    year(now()) - year(HIRE_DATE)as 근무년수
+from
+	EMPLOYEE;
 
 -- EMPLOYEE 테이블에서 사번이 홀수인 직원들의 정보 모두 조회 (mod)
+select
+	*
+from
+	EMPLOYEE
+where
+	EMP_ID % 2 != 0;
