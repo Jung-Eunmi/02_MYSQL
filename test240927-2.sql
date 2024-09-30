@@ -1,3 +1,4 @@
+use chundb;
 select * from TB_DEPARTMENT; --  학과테이블
 select * from TB_STUDENT; -- 학생테이블
 select * from TB_PROFESSOR; -- 교수테이블
@@ -41,16 +42,106 @@ where
 order by
 	PROFESSOR_SSN desc;
     
+    
+select SUBSTRING(PROFESSOR_SSN, 1, 6) a
+	 , CONCAT('19', SUBSTRING(PROFESSOR_SSN, 1, 6)) b
+     , STR_TO_DATE(CONCAT('19', SUBSTRING(PROFESSOR_SSN, 1, 6)), '%Y%m%d') c
+     , DATEDIFF(CURDATE(), STR_TO_DATE(CONCAT('19', SUBSTRING(PROFESSOR_SSN, 1, 6)), '%Y%m%d')) d
+     , DATEDIFF(CURDATE(), STR_TO_DATE(CONCAT('19', SUBSTRING(PROFESSOR_SSN, 1, 6)), '%Y%m%d')) / 365 e
+     , FLOOR(DATEDIFF(CURDATE(), STR_TO_DATE(CONCAT('19', SUBSTRING(PROFESSOR_SSN, 1, 6)), '%Y%m%d')) / 365) f 
+  from tb_professor;
+    
 -- 4.교수들의 이름 중 성을 제외한 이름만 출력하는 SQL 문장을 작성하시오. 출력 헤더는’이름’ 이 찍히도록 핚다. (성이 2 자인 경우는 교수는 없다고 가정하시오)
 select
 	SUBSTRING(PROFESSOR_NAME,2) 이름
 from
 	tb_professor;
 
+select * from tb_student;
 -- 5.춘 기술대학교의 재수생 입학자를 구하려고 한다. 
 -- 어떻게 찾아낼 것인가? 이때, 만 19살이 되는 해에 입학하면 재수를 하지 않은 것으로 간주한다.
+select
+	STUDENT_NO,
+    STUDENT_NAME
+from
+	tb_student
+where
+	floor(DATEDIFF(CURDATE(),STR_TO_DATE(if(substring(STUDENT_SSN,8,1)in ('1','2'),
+											concat('19',substring(STUDENT_SSN,1,6)),
+											concat('20',substring(STUDENT_SSN,1,6))), '%Y%m%d'))/ 365) > '19';
+                                            
+-- 6. 2020년 크리스마스는 무슨 요일이었는가?
+select
+	dayname('2020-12-25');
 
+-- 7. 1. `*STR_TO_DATE*('99/10/11', '%y/%m/%d')` `*STR_TO_DATE*('49/10/11', '%y/%m/%d')`은 각각 몇 년 몇 월 몇 일을 의미할까? 
+-- 또 `*STR_TO_DATE*('70/10/11', '%y/%m/%d')` `*STR_TO_DATE*('69/10/11', '%y/%m/%d')` 은 각각 몇 년 몇 월 몇 일을 의미할까?
+select
+	STR_TO_DATE('99/10/11', '%y/%m/%d') a,
+    STR_TO_DATE('49/10/11', '%y/%m/%d') b,
+    STR_TO_DATE('70/10/11', '%y/%m/%d') c,
+    STR_TO_DATE('69/10/11', '%y/%m/%d') d;
+    
+-- 8. 학번이 A517178 인 한아름 학생의 학점 총 평점을 구하는 SQL 문을 작성하시오. 
+-- 단, 이때 출력 화면의 헤더는 "평점" 이라고 찍히게 하고, 점수는 반올림하여 소수점 이하 한자리까지만 표시한다
+select
+	TRUNCATE(avg(POINT),1) 평점
+from
+	tb_grade
+where
+	STUDENT_NO = 'A517178';
+    
+-- 9. 학과별 학생수를 구하여 "학과번호", "학생수(명)" 의 형태로 헤더를 만들어 결과값이 출력되도록 하시오.
+select
+	DEPARTMENT_NO 학과번호,
+    count(*) as '학생수(명)'
+from
+	tb_student
+group by
+	DEPARTMENT_NO;
+    
+-- 10. 지도 교수를 배정받지 못한 학생의 수는 몇 명 정도 되는 알아내는 SQL 문을 작성하시오.
+select
+	count(*)
+from
+	tb_student
+where
+	COACH_PROFESSOR_NO is null;
 
+-- 11.학번이 A112113 인 김고운 학생의 년도 별 평점을 구하는 SQL 문을 작성하시오.
+-- 단, 이때 출력 화면의 헤더는 "년도", "년도 별 평점" 이라고 찍히게 하고, 점수는 반올림하여 소수점 이하 한자리까지만 표시한다.
+select
+	substring(TERM_NO,1,4) 년도,
+	round(avg(point),1) as '년도 별 평점'
+from
+	tb_grade
+where
+	STUDENT_NO = 'A112113'
+group by
+	substring(TERM_NO,1,4);
+    
+-- 12. 학과 별 휴학생 수를 파악하고자 한다. 학과 번호와 휴학생 수를 표시하는 SQL 문장을 작성하시오.
+select
+	DEPARTMENT_NO as '학과 번호',
+    count(CASE WHEN ABSENCE_YN = 'Y' THEN 1 else null end) as '휴학생 수'
+from
+	tb_student
+group by
+	DEPARTMENT_NO;
+    
+-- 춘 대학교에 다니는 동명이인(同名異人) 학생들의 이름을 찾고자 한다. 어떤 SQL 문장을 사용하면 가능하겠는가?
+select
+	STUDENT_NAME 동일이름,
+    count(*) as '동명인 수'
+from
+	tb_student
+group by
+	STUDENT_NAME
+having
+	count(STUDENT_NAME) > 1;
+	
+
+    
 
 
 
