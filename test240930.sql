@@ -100,17 +100,17 @@ order by
     c.CLASS_NAME;
 
 -- 8번 과목별 교수 이름을 찾으려고 한다. 과목 이름과 교수 이름을 출력하는 SQL 문을 작성하시오
-select
+SELECT DISTINCT
     c.CLASS_NAME, 
     p.PROFESSOR_NAME
-from
-	tb_class c
-    join
+FROM
+    tb_class c
+JOIN
     tb_professor p
-    on
+ON
     c.DEPARTMENT_NO = p.DEPARTMENT_NO
-order by
-	c.CLASS_NAME;
+ORDER BY
+    c.CLASS_NAME;
     
     
     
